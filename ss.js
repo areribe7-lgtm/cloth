@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 // every request header so random people can't abuse your proxy.
 // Change this to any long random string you want.
 // You will paste the same string into your Roblox server script later.
-const SECRET_KEY = "CHANGE_THIS_TO_A_LONG_RANDOM_STRING_12345";
+const SECRET_KEY = "Dn9zPnebJCrotOFr9UBu";
 // ── END CONFIG ────────────────────────────────────────
 
 // Simple HTTPS GET helper — returns parsed JSON or throws
