@@ -1,23 +1,13 @@
-// ══════════════════════════════════════════════════════
-//   Roblox Clothing Showcase Proxy
-//   Fetches group clothing asset IDs from Roblox's catalog
-//   and returns them to your Roblox game via HTTP.
-// ══════════════════════════════════════════════════════
 
 const http = require("http");
 const https = require("https");
 
-// ── CONFIG ────────────────────────────────────────────
+
 const PORT = process.env.PORT || 3000;
 
-// Your Roblox game's HttpService will send this key in
-// every request header so random people can't abuse your proxy.
-// Change this to any long random string you want.
-// You will paste the same string into your Roblox server script later.
-const SECRET_KEY = "Dn9zPnebJCrotOFr9UBu";
-// ── END CONFIG ────────────────────────────────────────
 
-// Simple HTTPS GET helper — returns parsed JSON or throws
+const SECRET_KEY = "Dn9zPnebJCrotOFr9UBu";
+
 function httpsGet(url) {
 	return new Promise((resolve, reject) => {
 		const req = https.get(url, {
@@ -44,12 +34,12 @@ function httpsGet(url) {
 	});
 }
 
-// Fetch ALL clothing pages for a group (handles pagination)
+
 async function fetchGroupClothing(groupId) {
 	const shirts = [];
 	const pants   = [];
 
-	// Roblox catalog subcategory IDs: 61 = Shirts, 62 = Pants
+	
 	const categories = [
 		{ subtype: 61, label: "Shirts",  list: shirts },
 		{ subtype: 62, label: "Pants",   list: pants  },
@@ -58,13 +48,13 @@ async function fetchGroupClothing(groupId) {
 	for (const cat of categories) {
 		let cursor = "";
 		let page   = 0;
-		const MAX_PAGES = 10; // safety cap — 10 pages * 30 items = 300 items max per type
+		const MAX_PAGES = 10; 
 
 		while (page < MAX_PAGES) {
 			const url = `https://catalog.roblox.com/v1/search/items`
-				+ `?Category=3`                          // Category 3 = Clothing
+				+ `?Category=3`                          
 				+ `&Subcategory=${cat.subtype}`
-				+ `&CreatorType=2`                       // CreatorType 2 = Group
+				+ `&CreatorType=2`                       
 				+ `&CreatorTargetId=${groupId}`
 				+ `&limit=30`
 				+ `&sortOrder=Desc`
@@ -91,7 +81,7 @@ async function fetchGroupClothing(groupId) {
 			cursor = result.nextPageCursor;
 			page++;
 
-			// Small delay between pages to be polite to Roblox's API
+			
 			await new Promise(r => setTimeout(r, 300));
 		}
 
@@ -101,21 +91,21 @@ async function fetchGroupClothing(groupId) {
 	return { shirts, pants };
 }
 
-// ── HTTP Server ───────────────────────────────────────
+
 const server = http.createServer(async (req, res) => {
 
-	// CORS headers — allow requests from anywhere
+	
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader("Content-Type", "application/json");
 
-	// Only allow GET to /groupclothing
+	
 	if (req.method !== "GET" || !req.url.startsWith("/groupclothing")) {
 		res.writeHead(404);
 		res.end(JSON.stringify({ error: "Not found" }));
 		return;
 	}
 
-	// Validate secret key header
+
 	const clientKey = req.headers["x-proxy-key"];
 	if (clientKey !== SECRET_KEY) {
 		res.writeHead(403);
@@ -124,7 +114,7 @@ const server = http.createServer(async (req, res) => {
 		return;
 	}
 
-	// Parse groupId from query string
+	
 	const urlObj  = new URL(req.url, `http://localhost:${PORT}`);
 	const groupId = urlObj.searchParams.get("groupId");
 
